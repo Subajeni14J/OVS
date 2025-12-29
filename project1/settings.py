@@ -133,5 +133,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'voter_login'         # where Django sends users if not logged in
 LOGIN_REDIRECT_URL = 'voter_dashboard'  # where to go after successful login
 LOGOUT_REDIRECT_URL = 'voter_login'     # fallback after logout
+import os
+
+STATIC_URL = '/static/'  # URL prefix for static files
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Folder for collectstatic
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
