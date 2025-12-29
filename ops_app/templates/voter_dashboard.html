@@ -1,0 +1,222 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voting Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #0a0141, #619cad);
+      min-height: 100vh;
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #fff;
+    }
+
+    .navbar {
+      background-color: rgba(35, 11, 102, 0.979);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1100;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+
+    .sidebar {
+      height: 100vh;
+      width: 230px;
+      position: fixed;
+      top: 60px;
+      left: 0;
+      background: rgb(17, 85, 112);
+      color: rgb(250, 247, 248);
+      padding-top: 20px;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .sidebar a {
+      display: block;
+      color: white;
+      padding: 15px 20px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: rgb(46, 19, 121);
+      border-radius: 5px;
+    }
+
+    .content {
+      margin-left: 230px;
+      padding: 80px 40px 40px;
+      transition: margin-left 0.3s ease-in-out;
+    }
+
+    .section {
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(148, 98, 113, 0.993);
+    }
+
+    .section h2 {
+      font-size: 26px;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    .btn-vote {
+      background-color: #fff;
+      color: #ee4d5a;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .btn-vote:hover {
+      background-color: #d38787;
+      color: #13662c;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.show {
+        transform: translateX(0);
+      }
+      .content {
+        margin-left: 0;
+        padding: 80px 20px;
+      }
+      .navbar-toggler {
+        display: block;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .navbar-toggler {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-dark">
+    <h4 class="text-white m-0">Online Voting System</h4>
+    <button class="navbar-toggler btn btn-sm btn-light" type="button" onclick="toggleSidebar()">☰</button>
+  </nav>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <h2>{{ user.username }}</h2>
+    <a href="{% url 'home' %}">Home</a>
+    <a href="{% url 'ballot_position' %}">Vote</a>
+    <a href="#">Results</a>
+    <a href="#">Profile</a>
+    <a href="{% url 'user_logout' %}">Logout</a>
+  </div>
+
+  <!-- Main Content -->
+  <section class="content">
+    <div class="section">
+      <h2>Welcome, {{ user.first_name }}</h2>
+      <p>You can cast your vote in the elections and see the results.</p>
+    </div>
+
+    <div class="section">
+      <h2>Cast Your Vote</h2>
+      <p>Click below to vote for your candidate.</p>
+
+      {% if voter_exists %}
+        <a href="{% url 'ballot_position' %}" class="btn-vote">Go to Ballot</a>
+      {% else %}
+        <button class="btn-vote" data-bs-toggle="modal" data-bs-target="#voterModal">Vote Now</button>
+      {% endif %}
+    </div>
+
+    <div class="section">
+      <h2>Upcoming Elections</h2>
+      <ul>
+        <li>College Union Election - 25th Aug</li>
+        <li>Sports Captain Election - 1st Sep</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Voter Form Modal -->
+  <div class="modal fade" id="voterModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-dark">
+        <div class="modal-header">
+          <h5 class="modal-title">Enter Your Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="modal-body">
+            <div class="row mb-3">
+              <div class="col">
+                <label for="id_firstname" class="form-label">First Name</label>
+                {{ form.firstname }}
+              </div>
+              <div class="col">
+                <label for="id_lastname" class="form-label">Last Name</label>
+                {{ form.lastname }}
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="id_voterid" class="form-label">Voter ID</label>
+              {{ form.voterid }}
+            </div>
+            <div class="mb-3">
+              <label for="id_photo" class="form-label">Photo</label>
+              {{ form.photo }}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Submit</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("show");
+  }
+
+  // Auto-show modal if voter does not exist
+  {% if not voter_exists %}
+  var voterModal = new bootstrap.Modal(document.getElementById('voterModal'));
+  window.addEventListener('load', () => {
+    voterModal.show();
+  });
+  {% endif %}
+</script>
+
+</body>
+</html>

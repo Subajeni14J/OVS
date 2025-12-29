@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Admin Dashboard{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      scroll-behavior: smooth; /* smooth scrolling */
+    }
+    /* ✅ Fixed Navbar */
+    .navbar {
+      background-color: #575757;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+    /* ✅ Sidebar */
+    .sidebar {
+      height: 100vh;
+      width: 250px;
+      position: fixed;
+      top: 55px; /* below navbar */
+      left: 0;
+      background-color: #797878;
+      color: white;
+      padding-top: 20px;
+      overflow-y: auto;
+    }
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .sidebar a {
+  display: block;
+  color: white;
+  padding: 15px 20px;
+  text-decoration: none;
+  font-size: 16px;
+  background-color: #5f4258;
+  transition: background 0.3s;
+  margin: 0;          /* remove gap between links */
+  border-top: 1px solid #444; /* optional: small separator line */
+}
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: #25242b;
+    }
+    .content {
+      margin-left: 250px; /* leave space for sidebar */
+      padding: 10px 20px 20px; /* padding-top leaves space for fixed navbar */
+    }
+    section {
+      padding: 50px 0;
+      min-height: 100vh; /* full screen height */
+    }
+   .sidebar h6 {
+  text-align: center;
+  background-color: black;
+  margin: 0;          /* remove gap above/below */
+  padding: 5px;      /* add spacing inside */
+  font-size: 14px;
+}
+.content{
+  background-color: 
+  #af7995;
+}
+ .card-footer-link {
+    display: block;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  /* Hover effects based on background */
+  .card-footer-link.text-white:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  .card-footer-link.text-dark:hover {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  </style>
+</head>
+<body>
+<!-- ✅ Top Navbar -->
+<nav class="navbar navbar-dark bg-dark navbar-expand-lg fixed-top">
+  <div class="container-fluid">
+    <h4 class="text-white m-0">Online Voting System</h4>
+    <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar" aria-controls="collapsibleNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- ✅ Collapsible Menu -->
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link text-white" href="{% url 'home' %}"><i class="fa-solid fa-house-user" style="color: #fffdff;"></i></a></li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ✅ Sidebar -->
+  <div class="sidebar">
+    <h2>CRCE Admin</h2>
+    <h6>REPORTS</h6>
+    <a href="#dashboard" class="active"><i class="fa fa-tachometer-alt"></i> Dashboard</a>
+    <a href="{% url 'votes' %}"><i class="fa fa-vote-yea"></i> Votes</a>
+    <h6>MANAGE</h6>
+    <a href="{% url 'voters' %}"><i class="fa fa-users"></i> Voters</a>
+    <a href="{% url 'positions' %}"><i class="fa fa-briefcase"></i> Positions</a>
+    <a href="{% url 'candidates_admin' %}"><i class="fa fa-user"></i> Candidates</a>
+    <h6>SETTINGS</h6>
+    <a href="{% url 'admin_ballot_positions' %}"><i class="fa fa-cogs"></i> Ballot Position</a>
+    <a href="#election"><i class="fa fa-file-alt"></i> Election Title</a>
+    <a href="{% url 'user_logout' %}"><i class="fa fa-sign-out-alt"></i> Logout</a>
+  </div>
+
+  <!-- ✅ Page Content -->
+  <div class="content">
+    <section id="dashboard">
+     <div class="container-fluid p-4">
+  <h3 class="mb-2"><i class="bi bi-speedometer2"></i> Dashboard</h3>
+<div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card text-center bg-primary text-white">
+          <div class="card-body">
+            <h5>Total Positions</h5>
+            <h2>{{ total_positions }}</h2>
+          </div>
+          <a href="{% url 'positions' %}" class="card-footer card-footer-link text-white text-decoration-none">More info →</a>
+           </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="card text-center bg-secondary text-white">
+          <div class="card-body">
+            <h5>Total Candidates</h5>
+            <h2>{{ total_candidates }}</h2>
+          </div>
+          <a href="{% url 'candidates_admin' %}" class="card-footer card-footer-link text-white text-decoration-none">More info →</a>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center bg-warning text-dark">
+          <div class="card-body">
+            <h5>Total Voters</h5>
+            <h2>{{ total_voters }}</h2>
+          </div>
+          <a href="{% url 'voters' %}" class="card-footer card-footer-link text-white text-decoration-none">More info →</a>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center bg-danger text-white">
+          <div class="card-body">
+            <h5>Voters Voted</h5>
+            <h2>{{ voters_voted }}</h2>
+          </div>
+          <a href="{% url 'votes' %}" class="card-footer card-footer-link text-white text-decoration-none">More info →</a>
+        </div>
+      </div>
+      
+  <h3 class="mb-2 mt-4"><i class="bi bi-speedometer2"></i> Votes Tally</h3>
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <div class="card p-3">
+        <h5 class="text-center">President</h5>
+        <canvas id="presidentChart"></canvas>
+      </div>
+    </div>
+    <div class="col-md-6 mb-4">
+      <div class="card p-3">
+        <h5 class="text-center">Vice President</h5>
+        <canvas id="vpChart"></canvas>
+      </div>
+    </div>
+    <div class="col-md-6 mb-4">
+      <div class="card p-3">
+        <h5 class="text-center">Secretary</h5>
+        <canvas id="secretaryChart"></canvas>
+      </div>
+    </div>
+    <div class="col-md-6 mb-4">
+      <div class="card p-3">
+        <h5 class="text-center">Treasurer</h5>
+        <canvas id="treasurerChart"></canvas>
+      </div>
+    </div>
+  </div>
+<script>
+  function renderChart(ctxId, labels, data, title) {
+    new Chart(document.getElementById(ctxId), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: title,
+          data: data,
+          backgroundColor: ['#007bff','#28a745','#ffc107','#dc3545','#6f42c1']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: { display: true, text: title }
+        }
+      }
+    });
+  }
+
+  // Render charts with Django data
+  renderChart("presidentChart", {{ president_data.labels|safe }}, {{ president_data.data|safe }}, "President Votes");
+  renderChart("vpChart", {{ vp_data.labels|safe }}, {{ vp_data.data|safe }}, "Vice President Votes");
+  renderChart("secretaryChart", {{ secretary_data.labels|safe }}, {{ secretary_data.data|safe }}, "Secretary Votes");
+  renderChart("treasurerChart", {{ treasurer_data.labels|safe }}, {{ treasurer_data.data|safe }}, "Treasurer Votes");
+</script>
+      
+  
+
+
+
+    
+    
+
+    
+   
+
+   
+
+
+  </div>
+
+  
+     

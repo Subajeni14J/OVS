@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Candidate Details{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow p-4">
+    <div class="row">
+      <div class="col-md-4 text-center">
+        {% if candidate.photo %}
+          <img src="{{ candidate.photo.url }}" class="img-fluid rounded" style="max-height: 250px; object-fit: cover;">
+        {% else %}
+          <span class="text-muted">No Photo</span>
+        {% endif %}
+      </div>
+      <div class="col-md-8">
+        <h3>{{ candidate.firstname }} {{ candidate.lastname }}</h3>
+        <p><strong>Email:</strong> {{ candidate.email }}</p>
+        <p><strong>Position:</strong> {{ candidate.position.description }}</p>
+        <p><strong>Manifesto:</strong> {{ candidate.manifesto }}</p>
+        <p><strong>Status:</strong> 
+          <span class="badge bg-warning text-dark">{{ candidate.status }}</span>
+        </p>
+        <div class="mt-3">
+          <a href="{% url 'approve_candidate' candidate.id %}" class="btn btn-success">Approve</a>
+          <a href="{% url 'reject_candidate' candidate.id %}" class="btn btn-danger">Reject</a>
+          <a href="{% url 'candidates_admin' %}" class="btn btn-secondary">Back</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

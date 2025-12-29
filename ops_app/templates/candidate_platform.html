@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ candidate.first_name }} {{ candidate.last_name }} - Platform</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+  <div class="card shadow-lg p-4">
+    <div class="d-flex align-items-center">
+      {% if candidate.photo %}
+        <img src="{{ candidate.photo.url }}" alt="Candidate Photo" class="rounded-circle me-3" width="100" height="100">
+      {% else %}
+        <img src="{% static 'default.png' %}" alt="Candidate Photo" class="rounded-circle me-3" width="100" height="100">
+      {% endif %}
+      <h2>{{ candidate.first_name }} {{ candidate.last_name }}</h2>
+    </div>
+    <hr>
+    <h4>Manifesto</h4>
+    <p>{{ candidate.manifesto }}</p>
+    <a href="{% url 'ballot_position' %}" class="btn btn-secondary mt-3">Back to Ballot</a>
+  </div>
+</div>
+</body>
+</html>

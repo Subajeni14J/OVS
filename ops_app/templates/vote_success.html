@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Vote Submitted{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="alert alert-success text-center p-4 shadow-lg" role="alert">
+        <h4 class="alert-heading">✅ Success!</h4>
+        <p class="fs-5">{{ message }}</p>
+    </div>
+
+    <p class="text-center">You have already voted for this election.</p>
+
+    <div class="text-center mt-3">
+        <a href="{% url 'ballot_position' %}" class="btn btn-primary btn-lg">View Ballot</a>
+    </div>
+
+    <p class="text-center mt-3">
+        Redirecting to <a href="{{ redirect_url }}">home page</a> in 
+        <span id="countdown">{{ redirect_seconds }}</span> seconds...
+    </p>
+</div>
+
+<script>
+    let countdown = {{ redirect_seconds }};
+    let redirectUrl = "{{ redirect_url }}";
+
+    let interval = setInterval(() => {
+        countdown--;
+        document.getElementById("countdown").innerText = countdown;
+        if (countdown <= 0) {
+            clearInterval(interval);
+            window.location.href = redirectUrl;
+        }
+    }, 1000);
+</script>
+{% endblock %}

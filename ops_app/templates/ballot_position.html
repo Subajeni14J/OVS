@@ -1,0 +1,219 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ballot Position</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #0a0141, #619cad);
+      min-height: 100vh;
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #fff;
+    }
+
+    /* Navbar */
+    .navbar {
+      background-color: rgba(35, 11, 102, 0.979);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1100;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      height: 100vh;
+      width: 230px;
+      position: fixed;
+      top: 60px;
+      left: 0;
+      background: rgb(17, 85, 112);
+      color: rgb(235, 220, 226);
+      padding-top: 20px;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .sidebar a {
+      display: block;
+      color: white;
+      padding: 15px 20px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: rgb(46, 19, 121);
+      border-radius: 5px;
+    }
+
+    /* Content */
+    .content {
+      margin-left: 230px;
+      padding: 80px 40px 40px;
+      transition: margin-left 0.3s ease-in-out;
+    }
+
+    /* Ballot cards */
+    .ballot-card {
+      max-width: 500px;
+      margin: 0 auto 20px auto;
+    }
+
+    .card {
+      color: #000;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.show {
+        transform: translateX(0);
+      }
+      .content {
+        margin-left: 0;
+        padding: 80px 20px;
+      }
+      .navbar-toggler {
+        display: block;
+      }
+    }
+    @media (min-width: 769px) {
+      .navbar-toggler {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-dark">
+    <h4 class="text-white m-0">Online Voting System</h4>
+    <button class="navbar-toggler btn btn-sm btn-light" type="button" onclick="toggleSidebar()">
+      ☰
+    </button>
+  </nav>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <h2>{{ user.username }}</h2>
+    <a href="{% url 'home' %}">Home</a>
+    <a href="{% url 'ballot_position' %}" class="active">Vote</a>
+    <a href="#">Results</a>
+    <a href="#">Profile</a>
+    <a href="{% url 'user_logout' %}">Logout</a>
+  </div>
+
+  <!-- Main Content -->
+  <section class="content">
+    <div class="container">
+      <h2 class="mb-4 text-white">Ballot Position</h2>
+
+      <form id="ballotForm" method="POST" action="{% url 'submit_vote' %}">
+        {% csrf_token %}
+
+        <div class="row">
+          {% for position in positions %}
+          <div class="col-md-6">
+            <div class="card ballot-card shadow-sm">
+              <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                <div>
+                  <h5 class="mb-0">{{ position.description }}</h5>
+                  <small>Select only one candidate</small>
+                </div>
+                <button type="button" class="btn btn-sm btn-warning" onclick="resetSelection('{{ position.id }}')">Reset</button>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  {% for candidate in position.candidates %}
+                  <div class="col-12 d-flex align-items-center mb-3">
+                    <input type="radio" 
+                           name="position_{{ position.id }}" 
+                           value="{{ candidate.id }}" 
+                           class="form-check-input me-2 position-radio-{{ position.id }}">
+
+                    {% if candidate.photo %}
+                      <img src="{{ candidate.photo.url }}" alt="Candidate Photo" class="rounded me-3" width="70" height="70">
+                    {% else %}
+                      <img src="{% static 'default.png' %}" alt="Candidate Photo" class="rounded me-3" width="70" height="70">
+                    {% endif %}
+
+                    <div>
+                      <h6 class="mb-1">{{ candidate.firstname }} {{ candidate.lastname }}</h6>
+                      <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#platformModal{{ candidate.id }}">
+                        Platform
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Modal -->
+                  <div class="modal fade" id="platformModal{{ candidate.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title">{{ candidate.firstname }} {{ candidate.lastname }} - Platform</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                          {% if candidate.photo %}
+                            <img src="{{ candidate.photo.url }}" alt="Candidate" class="rounded mb-3" width="100" height="100">
+                          {% endif %}
+                          <p>{{ candidate.manifesto }}</p>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-success btn-lg">Submit Vote</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <script>
+    function resetSelection(positionId) {
+      let radios = document.querySelectorAll('.position-radio-' + positionId);
+      radios.forEach(radio => radio.checked = false);
+    }
+
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("show");
+    }
+  </script>
+
+
+</body>
+</html>

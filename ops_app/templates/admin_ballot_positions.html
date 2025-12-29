@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4 text-center">Ballot Positions (Admin View)</h2>
+
+  {% for position in positions %}
+  <div class="card mb-4 shadow-sm">
+    <div class="card-header bg-dark text-white">
+      <h5 class="mb-0">{{ position }}</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        {% for candidate in position.candidate_set.all %}
+        <div class="col-md-6 d-flex align-items-center mb-3">
+          <!-- Candidate Photo -->
+          {% if candidate.photo %}
+            <img src="{{ candidate.photo.url }}" alt="Candidate Photo" class="rounded me-3" width="80" height="80">
+          {% else %}
+            <img src="{% static 'default.png' %}" alt="Candidate Photo" class="rounded me-3" width="80" height="80">
+          {% endif %}
+
+          <!-- Candidate Name + Platform Button -->
+          <div>
+            <h6 class="mb-1">{{ candidate.firstname }} {{ candidate.lastname }}</h6>
+            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#platformModal{{ candidate.id }}">
+             view <i class="fa-solid fa-magnifying-glass" style="color: #B197FC;"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Platform Modal -->
+        <div class="modal fade" id="platformModal{{ candidate.id }}" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">{{ position.name }} - Candidate Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              
+              <!-- MODAL BODY -->
+              <div class="modal-body">
+                <div class="row align-items-center">
+                  <!-- Left: Photo -->
+                  <div class="col-md-4 text-center">
+                    {% if candidate.photo %}
+                      <img src="{{ candidate.photo.url }}" alt="Candidate" class="rounded mb-3" width="120" height="120">
+                    {% else %}
+                      <img src="{% static 'default.png' %}" alt="Candidate" class="rounded mb-3" width="120" height="120">
+                    {% endif %}
+                  </div>
+
+                  <!-- Right: Candidate Details -->
+                  <div class="col-md-8">
+                    <h4 class="mb-2">{{ candidate.firstname }} {{ candidate.lastname }}</h4>
+                    <p><strong>Email:</strong> {{ candidate.email }}</p>
+                    <p><strong>Position:</strong> {{ candidate.position.description }}</p>
+                    <p><strong>Manifesto:</strong> {{ candidate.manifesto }}</p>
+                    <p><strong>Status:</strong>
+                      {% if candidate.status == "pending" %}
+                        <span class="badge bg-warning text-dark">{{ candidate.status }}</span>
+                      {% elif candidate.status == "approved" %}
+                        <span class="badge bg-success">{{ candidate.status }}</span>
+                      {% else %}
+                        <span class="badge bg-danger">{{ candidate.status }}</span>
+                      {% endif %}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- MODAL FOOTER (Approve / Reject Buttons) -->
+              <div class="modal-footer">
+                {% if candidate.status == "pending" %}
+                  <a href="{% url 'approve_candidate' candidate.id %}" class="btn btn-success">Approve</a>
+                  <a href="{% url 'reject_candidate' candidate.id %}" class="btn btn-danger">Reject</a>
+                {% endif %}
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- End Modal -->
+
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Candidates - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Candidate Applications</h2>
+
+  <table class="table table-bordered table-striped align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Photo</th>
+        <th>Full Name</th>
+        <th>Email</th>
+        <th>Position</th>
+        <th>Manifesto</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for x in candidates %}
+      <tr>
+        <td>{{ x.id }}</td>
+        <td>
+          {% if x.photo %}
+            <img src="{{ x.photo.url }}" alt="Candidate Photo" width="60" height="60" class="rounded" style="object-fit: cover;">
+          {% else %}
+            <span class="text-muted">No Photo</span>
+          {% endif %}
+        </td>
+        <td>{{ x.firstname }} {{ x.lastname }}</td>
+        <td>{{ x.email }}</td>
+        <td>{{ x.position.description }}</td>
+        <td>{{ x.manifesto }}</td>
+        <td>
+          {% if x.status == "Pending" %}
+          <a href="{% url 'candidate_detail' x.id %}" class="badge bg-warning text-dark text-decoration-none">
+      Pending
+    </a>
+            
+          {% elif x.status == "Approved" %}
+            <span class="badge bg-success">Approved</span>
+          {% elif x.status == "Rejected" %}
+            <span class="badge bg-danger">Rejected</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if x.status == "pending" %}
+            <a href="{% url 'approve_candidate' x.id %}" class="btn btn-success btn-sm">Approve</a>
+            <a href="{% url 'reject_candidate' x.id %}" class="btn btn-danger btn-sm">Reject</a>
+          {% endif %}
+          <a href="{% url 'edit_candidate' x.id %}" class="btn btn-primary btn-sm">Edit</a>
+          <a href="{% url 'delete_candidate' x.id %}" class="btn btn-danger btn-sm">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

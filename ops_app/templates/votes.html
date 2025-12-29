@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Votes{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">Votes</h2>
+
+    <!-- Filter Section -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="positionFilter" class="form-label fw-bold">Filter by Position</label>
+            <select id="positionFilter" class="form-select">
+    <option value="">All Positions</option>
+    {% for vote in votes %}
+        {% ifchanged vote.position.description %}
+            <option value="{{ vote.position.id }}">{{ vote.position.description }}</option>
+        {% endifchanged %}
+    {% endfor %}
+</select>
+
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button id="resetFilter" class="btn btn-danger w-100">Reset</button>
+        </div>
+    </div>
+
+    <!-- Votes Table -->
+    <div class="table-responsive">
+        <table id="votesTable" class="table table-bordered table-striped align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Position</th>
+                    <th>Candidate</th>
+                    <th>Voter</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vote in votes %}
+                <tr>
+                    <td>{{ vote.position.name }}</td>
+                    <td>{{ vote.candidate.firstname }} {{ vote.candidate.lastname }}</td>
+                    <td>{{ vote.voter.first_name }} {{ vote.voter.last_name }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center">No votes recorded yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- DataTables JS & CSS -->
+
+<script>
+    $(document).ready(function () {
+        var table = $('#votesTable').DataTable({
+            "pageLength": 10,
+            "lengthMenu": [5, 10, 25, 50],
+            "order": [[0, "asc"]] // Sort by Position
+        });
+
+        // Filter by position
+        $('#positionFilter').on('change', function () {
+            var selected = $(this).val();
+            table.column(0).search(selected).draw();
+        });
+
+        // Reset filter button
+        $('#resetFilter').on('click', function () {
+            $('#positionFilter').val('');
+            table.column(0).search('').draw();
+        });
+    });
+</script>
+{% endblock %}
